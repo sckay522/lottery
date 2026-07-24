@@ -1,0 +1,6 @@
+{
+  "appId": "com.lottery.app",
+  "appName": "lottery",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
