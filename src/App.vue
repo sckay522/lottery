@@ -123,11 +123,14 @@ export default {
     try {
       // 方式1：Capacitor 原生插件（APK 环境，绕过 CORS）
       if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
-        const result = await Capacitor.Plugins.ApiProxy.fetch({ url: API_DIRECT })
-        const json = JSON.parse(result.data)
-        this.list = json.result || []
-        this.loading = false
-        return
+        if (Capacitor.Plugins.ApiProxy) {
+          const result = await Capacitor.Plugins.ApiProxy.fetch({ url: API_DIRECT })
+          const json = JSON.parse(result.data)
+          this.list = json.result || []
+          this.loading = false
+          return
+        }
+        // 插件未加载，降级到 JSONP
       }
 
       // 方式2：代理（开发服务器 / Node.js 服务器）
