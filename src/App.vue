@@ -121,7 +121,16 @@ export default {
   },
   async mounted() {
     try {
-      // 方式1：优先尝试代理（开发服务器 / Node.js 服务器）
+      // 方式1：Capacitor 原生插件（APK 环境，绕过 CORS）
+      if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
+        const result = await Capacitor.Plugins.ApiProxy.fetch({ url: API_DIRECT })
+        const json = JSON.parse(result.data)
+        this.list = json.result || []
+        this.loading = false
+        return
+      }
+
+      // 方式2：代理（开发服务器 / Node.js 服务器）
       try {
         const res = await fetch(API_PROXY)
         if (res.ok) {
@@ -130,9 +139,9 @@ export default {
           this.loading = false
           return
         }
-      } catch (_) { /* 代理不可用，走 JSONP */ }
+      } catch (_) { /* 代理不可用 */ }
 
-      // 方式2：JSONP（适用于 APK 或直接打开 HTML）
+      // 方式3：JSONP（桌面浏览器备用）
       const data = await jsonp(API_DIRECT)
       this.list = data.result || []
     } catch (e) {

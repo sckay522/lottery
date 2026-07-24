@@ -32,3 +32,6 @@ pnpm-debug.log*
 .DS_Store
 node_modules
 /dist
+*.exe
+git-portable/
+package-lock.json
