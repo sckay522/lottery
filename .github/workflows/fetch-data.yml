@@ -1,0 +1,33 @@
+name: 定时抓取开奖数据
+
+on:
+  schedule:
+    # 每周二、四、日 21:00, 21:30, 22:00, 22:30 抓取
+    - cron: '0 21 * * 0,2,4'
+    - cron: '30 21 * * 0,2,4'
+    - cron: '0 22 * * 0,2,4'
+    - cron: '30 22 * * 0,2,4'
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 抓取双色球开奖数据
+        run: |
+          curl -s -o public/lottery-data.json \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" \
+            "https://www.cwl.gov.cn/cwl_admin/front/cwlkj/search/kjxx/findDrawNotice?name=ssq&issueCount=&issueStart=&issueEnd=&dayStart=&dayEnd=&pageNo=1&pageSize=30000&week=&systemType=PC"
+
+      - name: 提交数据更新
+        run: |
+          git config user.name "lottery-bot"
+          git config user.email "lottery-bot@users.noreply.github.com"
+          git add public/lottery-data.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "chore: 自动更新开奖数据 $(date '+%Y-%m-%d %H:%M')"
+          git push

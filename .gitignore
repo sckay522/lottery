@@ -35,3 +35,14 @@ node_modules
 *.exe
 git-portable/
 package-lock.json
+
+# Android build artifacts
+gradle-7.4.2/
+temp/
+build_*.txt
+build_*.log
+gv.txt
+version.log
+tasks.txt
+gradle_version_*.txt
+gradle_version_out.txt

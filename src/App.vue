@@ -305,7 +305,18 @@ export default {
         // 插件未加载，降级到 JSONP
       }
 
-      // 方式2：代理（开发服务器 / Node.js 服务器）
+      // 方式2：本地预抓取数据（GitHub Actions 定时更新，Render / 静态网站）
+      try {
+        const res = await fetch('lottery-data.json')
+        if (res.ok) {
+          const json = await res.json()
+          this.list = json.result || []
+          this.loading = false
+          return
+        }
+      } catch (_) { /* 本地数据未找到 */ }
+
+      // 方式3：代理（开发服务器 / Node.js 服务器）
       try {
         const res = await fetch(API_PROXY)
         if (res.ok) {
@@ -316,7 +327,7 @@ export default {
         }
       } catch (_) { /* 代理不可用 */ }
 
-      // 方式3：公共 CORS 代理（静态网站部署，绕过 CORS）
+      // 方式4：公共 CORS 代理（静态网站部署，绕过 CORS）
       const proxies = [
         'https://corsproxy.io/?url=',
         'https://api.allorigins.win/raw?url='
@@ -333,7 +344,7 @@ export default {
         } catch (_) { /* 此代理不可用，尝试下一个 */ }
       }
 
-      // 方式4：JSONP（最后兜底）
+      // 方式5：JSONP（最后兜底）
       const data = await jsonp(API_DIRECT)
       this.list = data.result || []
     } catch (e) {
